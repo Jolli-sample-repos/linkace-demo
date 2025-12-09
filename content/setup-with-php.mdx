@@ -2,10 +2,22 @@
 title: Setup with PHP
 ---
 
-{/* Build timestamp: 1765242290676 - Forces cache invalidation */}
+{/* Build timestamp: 1765243403597 - Forces cache invalidation */}
 
-**Last Updated:** 12/8/2025
+**Last Updated:** 12/9/2025
 
+---
+
+---
+article_type: jolliscript
+on:
+  - jrn: /root/integrations/*/*/*
+    verb: GIT_PUSH
+job:
+  steps:
+    - name: "Update Article"
+      run_prompt: |
+        check out the repo and see the last change both summary and details, if the article contains factual differences with what has just changed in the repository, make edits via the add/delete/update_section tool.
 ---
 
 Since this application was designed for Docker, consider the following steps as a workaround. These steps aren't guaranteed to work in every environment. You will need shell access to work with LinkAce.
@@ -94,8 +106,6 @@ error_page 404 /index.php;
 Now open the URL pointing to LinkAce in your browser. The built-in setup should start. Follow the instructions to configure a database and register your user account.
 
 Please make sure to follow the post-installation steps to fully enable all features, including automated backups and link checks.
-
----
 
 ## Completing the installation without the built-in setup
 
