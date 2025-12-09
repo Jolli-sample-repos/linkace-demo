@@ -21,5 +21,10 @@ export default {
   },
   'v2-changelog': 'v2 Changelog',
   'linkace-translations': 'LinkAce Translations',
-  'likeace-overview': 'LinkAce Overview'
+  'likeace-overview': 'LinkAce Overview',
+  'api-linkace-openapi': {
+    title: 'Linkace Openapi',
+    type: 'page',
+    href: '/api-docs-linkace-openapi.html'
+  }
 }
