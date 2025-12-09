@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "LinkAce API ",
+    "title": "LinkAce API",
     "version": "2.0",
     "license": {
       "name": "GPL-3.0-or-later",
@@ -26,7 +26,7 @@
         }
       ],
       "get": {
-        "summary": "API Current Version",
+        "summary": "API CURRENT Version",
         "operationId": "get-api-version",
         "description": "<div><span class=\"since\">Available since: v2.1.0</span></div>Get the current API version supported by LinkAce",
         "responses": {

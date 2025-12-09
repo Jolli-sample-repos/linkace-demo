@@ -28,6 +28,7 @@ export default {
   },
   'api-linkace-openapi': {
     title: 'Linkace Openapi',
+    type: 'page',
     href: '/api-docs-linkace-openapi.html'
   }
 }
