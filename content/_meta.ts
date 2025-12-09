@@ -1,42 +1,34 @@
-export default 
-{
-  "index": {
-    "title": "Getting Started",
-    "type": "separator"
+export default {
+  'index': 'Home',
+  'setup-with-php': 'Setup with PHP',
+  'setup-with-docker': 'Setup with Docker',
+  'using': {
+    type: 'separator',
+    title: 'Using LinkAce'
   },
-  "setup-with-php": "Setup with PHP",
-  "setup-with-docker": "Setup with Docker",
-
-  "using": {
-    "title": "Using LinkAce",
-    "type": "separator"
+  'the-dashboard': 'The Dashboard',
+  'links': 'Links',
+  'link-checks': 'Link Checks',
+  'guides': {
+    type: 'separator',
+    title: 'Guides'
   },
-  "the-dashboard": "The Dashboard",
-  "links": "Links",
-  "link-checks": "Link Checks",
-
-  "guides": {
-    "title": "Guides",
-    "type": "separator"
+  'third-party-tools-and-libraries': 'Third Party Tools and Libraries',
+  'troubleshooting': 'Troubleshooting',
+  'reference': {
+    type: 'separator',
+    title: 'Reference'
   },
-  "third-party-tools-and-libraries": "Third Party Tools and Libraries",
-  "troubleshooting": "Troubleshooting",
-
-  "reference": {
-    "title": "Reference",
-    "type": "separator"
+  'v2-changelog': 'v2 Changelog',
+  'linkace-translations': 'LinkAce Translations',
+  'likeace-overview': 'LikeAce Overview',
+  'api': {
+    type: 'separator',
+    title: 'API Documentation'
   },
-  "v2-changelog": "v2 Changelog",
-  "linkace-translations": "LinkAce Translations",
-  "likeace-overview": "LikeAce Overview",
-
-  "api": {
-    "title": "API Documentation",
-    "type": "separator"
-  },
-  "api-linkace-openapi": {
-    "title": "LinkAce OpenAPI",
-    "type": "page",
-    "href": "/api-docs-linkace-openapi.html"
+  'api-linkace-openapi': {
+    title: 'Linkace Openapi',
+    type: 'page',
+    href: '/api-docs-linkace-openapi.html'
   }
 }
