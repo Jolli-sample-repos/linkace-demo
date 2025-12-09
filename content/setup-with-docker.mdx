@@ -1,0 +1,337 @@
+---
+title: Setup with Docker
+---
+
+{/* Build timestamp: 1765240518417 - Forces cache invalidation */}
+
+**Last Updated:** 12/7/2025
+
+---
+
+
+
+# Deploy LinkAce with Docker
+
+This guide will walk you through deploying LinkAce using Docker and Docker Compose. This is the recommended deployment method as it provides a complete, isolated environment with all required dependencies.
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed on your server:
+
+Docker (version 20.10 or higher)Docker Compose (version 2.0 or higher)At least 2GB of RAM and 10GB of disk spaceA domain name (optional, but recommended for production use)
+
+## Quick Start
+
+
+
+### 1. Download the Docker Compose Configuration
+
+Create a new directory for your LinkAce installation and download the production Docker Compose file:
+
+```bash
+mkdir linkace && cd linkace
+wget https://raw.githubusercontent.com/Kovah/LinkAce/2.x/docker-compose.production.yml -O docker-compose.yml
+```
+
+### 2. Create the Environment File
+
+Download the example environment file:
+
+```bash
+wget https://raw.githubusercontent.com/Kovah/LinkAce/2.x/.env.docker.production -O .env
+```
+
+### 3. Configure Your Installation
+
+Open the .env file and configure the following essential settings:
+
+#### Generate Application Key
+
+First, generate a secure application key:
+
+```bash
+docker run --rm linkace/linkace:latest php artisan key:generate --show
+```
+
+Copy the generated key and set it in your .env file:
+
+```env
+APP_KEY=base64:YourGeneratedKeyHere
+```
+
+#### Database Configuration
+
+Update the database credentials in your .env file:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=db
+DB_PORT=3306
+DB_DATABASE=linkace
+DB_USERNAME=linkace
+DB_PASSWORD=YourSecureDatabasePassword
+```
+
+Important: Replace YourSecureDatabasePassword with a strong, unique password. Wrap the password in quotes if it contains special characters.
+
+#### Redis Configuration
+
+Update the Redis password:
+
+```env
+REDIS_HOST=redis
+REDIS_PASSWORD=YourSecureRedisPassword
+REDIS_PORT=6379
+```
+
+## 4. Configure Port Mapping (Optional)
+
+By default, LinkAce will be accessible on port 80. If you need to change this, edit the docker-compose.yml file:
+
+```yaml
+ports:
+  - "8080:80"  # Change 8080 to your preferred port
+```
+
+For HTTPS support, uncomment the HTTPS port and volume mappings in the docker-compose.yml:
+
+```yaml
+ports:
+  - "0.0.0.0:80:80"
+  - "0.0.0.0:443:443"  # Uncomment this line
+volumes:
+  - ./.env:/app/.env
+  - ./caddy-data:/home/www-data/.local/share/caddy  # Uncomment this line
+  - ./ssl.Caddyfile:/etc/caddy/Caddyfile  # Uncomment this line
+```
+
+### 5. Start the Application
+
+Start all services:
+
+```bash
+docker compose up -d
+```
+
+This command will:
+
+Pull the required Docker images (LinkAce, MariaDB, Redis)Create the necessary containersStart all services in the background
+
+### 6. Complete the Setup
+
+Once the containers are running, open your browser and navigate to:
+
+```
+http://your-server-ip
+```
+
+Or if you configured a domain:
+
+```
+http://your-domain.com
+```
+
+Follow the web-based setup wizard to:
+
+Create your admin accountConfigure email settings (optional)Set up backup options (optional)
+
+## Understanding the Docker Setup
+
+
+
+### Services
+
+The Docker Compose configuration includes three main services:
+
+## 1. LinkAce Application (app)
+
+Image: linkace/linkace:latestPurpose: The main LinkAce applicationIncludes: PHP, Caddy web server, and all application codePorts: 80 (HTTP) and optionally 443 (HTTPS)
+
+## 2. Database (db)
+
+Image: mariadb:12.0Purpose: Stores all your links, lists, tags, and settingsData persistence: Uses a Docker volume named db
+
+## 3. Cache (redis)
+
+Image: redis:8.2Purpose: Provides caching for improved performanceConfiguration: Password-protected using the REDIS_PASSWORD from your .env file
+
+### Data Persistence
+
+Your data is stored in Docker volumes:
+
+Database data: Stored in the db volumeApplication logs and backups: Can be stored in a local directory (optional)
+
+To enable backup persistence, uncomment this line in docker-compose.yml:
+
+```yaml
+volumes:
+  - ./.env:/app/.env
+  - ./backups:/app/storage/app/backups  # Uncomment this line
+```
+
+## Managing Your Installation
+
+
+
+### View Logs
+
+To view logs from all services:
+
+```bash
+docker compose logs -f
+```
+
+To view logs from a specific service:
+
+```bash
+docker compose logs -f app
+```
+
+### Stop the Application
+
+```bash
+docker compose stop
+```
+
+### Restart the Application
+
+```bash
+docker compose restart
+```
+
+### Update to the Latest Version
+
+Pull the latest image:
+
+```bash
+docker compose pull
+```
+
+Recreate the containers:
+
+```bash
+docker compose up -d
+```
+
+Run database migrations (if needed):
+
+```bash
+docker compose exec app php artisan migrate --force
+```
+
+### Backup Your Data
+
+
+
+#### Database Backup
+
+```bash
+docker compose exec db mysqldump -u linkace -p linkace > backup-$(date +%Y%m%d).sql
+```
+
+#### Complete Backup
+
+To backup everything including the database and uploaded files:
+
+```bash
+# Backup database
+docker compose exec db mysqldump -u linkace -p linkace > backup-db-$(date +%Y%m%d).sql
+
+# Backup environment file
+cp .env .env.backup
+
+# Backup volumes
+docker run --rm -v linkace_db:/data -v $(pwd):/backup alpine tar czf /backup/db-volume-$(date +%Y%m%d).tar.gz /data
+```
+
+## Troubleshooting
+
+
+
+### Container Won't Start
+
+Check the logs for errors:
+
+```bash
+docker compose logs app
+```
+
+### Database Connection Errors
+
+Ensure the database container is running:
+
+```bash
+docker compose ps
+```
+
+Verify your database credentials in the .env file match those in docker-compose.ymlCheck if the database is ready:
+
+```bash
+docker compose exec db mysql -u linkace -p -e "SHOW DATABASES;"
+```
+
+### Permission Issues
+
+If you encounter permission errors, ensure the storage directories have the correct permissions:
+
+```bash
+docker compose exec app chown -R www-data:www-data /app/storage
+```
+
+### Reset Admin Password
+
+If you forget your admin password:
+
+```bash
+docker compose exec app php artisan linkace:reset-password your-email@example.com
+```
+
+## Advanced Configuration
+
+
+
+### Using PostgreSQL Instead of MariaDB
+
+Edit your .env file:
+
+```env
+DB_CONNECTION=pgsql
+DB_HOST=db
+DB_PORT=5432
+```
+
+Then update your docker-compose.yml to use PostgreSQL:
+
+```yaml
+db:
+  image: postgres:17
+  environment:
+    - POSTGRES_PASSWORD=${DB_PASSWORD}
+    - POSTGRES_USER=${DB_USERNAME}
+    - POSTGRES_DB=${DB_DATABASE}
+```
+
+### Custom Domain and HTTPS
+
+For production deployments with a custom domain, you'll want to use a reverse proxy like Nginx Proxy Manager, Traefik, or Caddy. Refer to the LinkAce documentation for specific reverse proxy configurations.
+
+### Email Configuration
+
+To enable email notifications, add these settings to your .env file:
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=your-smtp-host
+MAIL_PORT=587
+MAIL_USERNAME=your-email@example.com
+MAIL_PASSWORD=your-email-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=your-email@example.com
+MAIL_FROM_NAME="LinkAce"
+```
+
+## Next Steps
+
+After successfully deploying LinkAce:
+
+Configure backups: Set up automated backups to AWS S3 or compatible storageEnable link monitoring: Configure automatic checking for broken linksSet up the bookmarklet: Install the bookmarklet in your browser for quick link savingExplore the API: LinkAce provides a full REST API for integrationsJoin the community: Visit the GitHub Discussions for support and tips

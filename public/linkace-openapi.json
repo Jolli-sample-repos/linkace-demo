@@ -1,0 +1,3181 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "LinkAce API",
+    "version": "2.0",
+    "license": {
+      "name": "GPL-3.0-or-later",
+      "url": "https://opensource.org/licenses/gpl-3.0.html"
+    },
+    "contact": {
+      "url": "https://github.com/Kovah/LinkAce"
+    },
+    "description": "The LinkAce API is a clearly structured REST API to access and modify the data stored in your LinkAce setup. All data must be sent via JSON and JSON is used to return any data or messages.\n\nThe source of this API documentation can be found [on Github](https://github.com/Kovah/LinkAce-API-Docs).\n\n## Usage\n### Generating an API key\n\nTo use the API, you have to generate an API key in the LinkAce user settings. Please notice that API tokens changed with v2 of LinkAce and can be created multiple times for various clients or applications. API tokens will in this case be differentiated by their name.\n\n![Preview of the user settings](/images/linkacev2_user_api_tokens.png)\n\n### Using the API key\n\nIt highly depends on the system you use to work with the LinkAce API. In this example we do a simple request via Curl. We will create a new link.\n\n* Replace `https://your-linkace-url.com` with your actual domain you use to access your LinkAce.\n* Replace `YOUR-API-KEY-HERE` with the API key you got from the user settings.\n* Fill the data JSON block with the actual data of the link you want to save.\n\n```bash\ncurl --request POST \\\n  --url https://your-linkace-url.com/api/v2/links \\\n  --header 'accept: application/json' \\\n  --header 'Content-Type: application/json' \\\n  --header 'authorization: Bearer YOUR-API-KEY-HERE' \\\n  --data '{\n    \"url\":\"https://duckduckgo.com\",\n    \"title\":\"DuckDuckGo\",\n    \"description\":\"\",\n    \"lists\":[],\n    \"tags\":[],\n    \"visibility\":1,\n    \"check_disabled\":false\n    }'\n```\n\nAfter sending the request with the HTTP status `200`, you will get a response that may look like this:\n\n```json\n{\n  \"id\": 1,\n  \"url\": \"https://duckduckgo.com\",\n  \"title\": \"DuckDuckGo\",\n  \"description\": \"\",\n  \"visibility\": 1,\n  \"user_id\": 1,\n  \"icon\": \"fa fa-link\",\n  \"updated_at\": \"2020-03-09T19:33:23.000000Z\",\n  \"created_at\": \"2020-03-09T19:33:23.000000Z\",\n}\n```\n\n## Compatibility with various clients\n\nPlease notice that the clients acting with the LinkAce API need to send proper requests. This includes:\n- a `Content-Length` header, if the transfer is not chunked,\n- a `Content-Type` header with the value of `application/json`,\n- a `Accept` header with the value of `application/json`.\n"
+  },
+  "servers": [
+    {
+      "url": "https://demo.linkace.org",
+      "description": "Demo Server"
+    }
+  ],
+  "paths": {
+    "/api/version": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "get": {
+        "summary": "API Version",
+        "operationId": "get-api-version",
+        "description": "<div><span class=\"since\">Available since: v2.1.0</span></div>Get the current API version supported by LinkAce",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string",
+                      "example": "v2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ]
+      }
+    },
+    "/api/v2/links": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "get": {
+        "summary": "Links: Get all Links",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkPaginator"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-api-v2-links",
+        "description": "Get all links.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaginatorAmount"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "url",
+                "title",
+                "description",
+                "visibility",
+                "status",
+                "check_disabled",
+                "created_at",
+                "updated_at"
+              ]
+            },
+            "in": "query",
+            "name": "order_by",
+            "description": "Order elements by the specified field"
+          },
+          {
+            "$ref": "#/components/parameters/OrderDirection"
+          }
+        ],
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "tags": [
+          "Links"
+        ]
+      },
+      "post": {
+        "summary": "Links: Create",
+        "operationId": "post-api-v2-links",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Link"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkRequest"
+              },
+              "examples": {
+                "Example Request for DuckDuckGo.com": {
+                  "$ref": "#/components/examples/LinkRequest"
+                },
+                "Example Request with tags as a string": {
+                  "$ref": "#/components/examples/LinkRequestWithStringTags"
+                },
+                "Example Request with tags as strings in array": {
+                  "$ref": "#/components/examples/LinkRequestWithArrayTags"
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "description": "Create a new Link.",
+        "tags": [
+          "Links"
+        ]
+      }
+    },
+    "/api/v2/links/{link_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        },
+        {
+          "schema": {
+            "type": "integer"
+          },
+          "name": "link_id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Links: Link Details",
+        "operationId": "get-api-v2-links-link_id",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Link"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "description": "Get one specific link, including his lists and tags.",
+        "tags": [
+          "Links"
+        ]
+      },
+      "patch": {
+        "summary": "Links: Update",
+        "operationId": "patch-api-v2-links-link_id",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Link"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkRequest"
+              },
+              "examples": {
+                "Example Request for DuckDuckGo.com": {
+                  "$ref": "#/components/examples/LinkRequest"
+                },
+                "Example Request with tags as a string": {
+                  "$ref": "#/components/examples/LinkRequestWithStringTags"
+                },
+                "Example Request with tags as strings in array": {
+                  "$ref": "#/components/examples/LinkRequestWithArrayTags"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "description": "Update one specific link.",
+        "tags": [
+          "Links"
+        ]
+      },
+      "delete": {
+        "summary": "Links: Delete",
+        "operationId": "delete-api-v2-links-link_id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "description": "Delete one specific link.",
+        "tags": [
+          "Links"
+        ]
+      }
+    },
+    "/api/v2/search/links": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "get": {
+        "summary": "Search Links",
+        "tags": [
+          "Search",
+          "Links"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkPaginator"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-api-v2-search-links",
+        "description": "Search all links saved in LinkAce",
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaginatorAmount"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "query",
+            "description": "Query used to search for Links",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "search_title",
+            "description": "Enables searching in the title"
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "description": "Enables searching in the description",
+            "name": "search_description"
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "private_only",
+            "description": "Search for private links only"
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "broken_only",
+            "description": "Search for broken links only (Status is not \"Ok\")"
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "empty_lists",
+            "description": "Search for links without any lists attatched"
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "empty_tags",
+            "description": "Search for links without any tags attatched"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "only_lists",
+            "description": "Comma-separated list of list IDs a link must have"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "only_tags",
+            "description": "Comma-separated list of tag IDs a link must have"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "title:asc",
+              "enum": [
+                "title:asc",
+                "title:desc",
+                "url:asc",
+                "url:desc",
+                "created_at:asc",
+                "created_at:desc"
+              ]
+            },
+            "in": "query",
+            "name": "order_by",
+            "description": "Order the results by the following format: \"field_to_order:order_direction\", e.g. \"title:asc\""
+          }
+        ]
+      }
+    },
+    "/api/v2/links/{link_id}/notes": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        },
+        {
+          "schema": {
+            "type": "integer"
+          },
+          "name": "link_id",
+          "description": "ID of the link you want to get notes for",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Links: Notes for a Link",
+        "tags": [
+          "Notes",
+          "Links"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotePaginator"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "operationId": "get-api-v2-links-link_id-notes",
+        "description": "Get all notes of one specific link.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaginatorAmount"
+          }
+        ]
+      }
+    },
+    "/api/v2/lists": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "get": {
+        "summary": "Lists: Get all Lists",
+        "tags": [
+          "Lists"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListPaginator"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-api-v2-lists",
+        "description": "Get all lists.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaginatorAmount"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "name",
+                "description",
+                "visibility",
+                "created_at",
+                "updated_at"
+              ]
+            },
+            "in": "query",
+            "name": "order_by",
+            "description": "Order elements by the specified field"
+          },
+          {
+            "$ref": "#/components/parameters/OrderDirection"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Lists: Create",
+        "operationId": "post-api-v2-lists",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/List"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListRequest"
+              },
+              "examples": {
+                "Simple List Request": {
+                  "$ref": "#/components/examples/ListRequest"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new List.",
+        "tags": [
+          "Lists"
+        ]
+      }
+    },
+    "/api/v2/lists/{list_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        },
+        {
+          "schema": {
+            "type": "integer"
+          },
+          "name": "list_id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Lists: List Details",
+        "tags": [
+          "Lists"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/List"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "operationId": "get-api-v2-lists-list_id",
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "description": "Get one specific list."
+      },
+      "patch": {
+        "summary": "Lists: Update",
+        "operationId": "patch-api-v2-lists-list_id",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/List"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListRequest"
+              },
+              "examples": {
+                "Simple List Request": {
+                  "$ref": "#/components/examples/ListRequest"
+                }
+              }
+            }
+          }
+        },
+        "description": "Update one specific list.",
+        "tags": [
+          "Lists"
+        ]
+      },
+      "delete": {
+        "summary": "Lists: Delete",
+        "operationId": "delete-api-v2-lists-list_id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "description": "Delete one specific list.",
+        "tags": [
+          "Lists"
+        ]
+      }
+    },
+    "/api/v2/lists/{list_id}/links": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        },
+        {
+          "schema": {
+            "type": "integer"
+          },
+          "name": "list_id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Lists: Links for a List",
+        "tags": [
+          "Lists"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkPaginator"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "operationId": "get-api-v2-lists-list_id-links",
+        "description": "Get all links of one specific list.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaginatorAmount"
+          }
+        ]
+      }
+    },
+    "/api/v2/search/lists": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "get": {
+        "summary": "Search Lists for Link Editing",
+        "tags": [
+          "Search",
+          "Lists"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListPaginator"
+                },
+                "examples": {
+                  "Example for Query \"articles\"": {
+                    "value": {
+                      "11": "Scientific Articles",
+                      "23": "Web Development Articles"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-api-v2-search-lists",
+        "description": "Search Lists to be used for Link editing.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaginatorAmount"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "query",
+            "description": "Query used to search for Lists",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/api/v2/tags": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "get": {
+        "summary": "Tags: Get all Tags",
+        "tags": [
+          "Tags"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TagPaginator"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-api-v2-tags",
+        "description": "Get all tags.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaginatorAmount"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "name",
+                "visibility",
+                "created_at",
+                "updated_at"
+              ]
+            },
+            "in": "query",
+            "name": "order_by",
+            "description": "Order elements by the specified field"
+          },
+          {
+            "$ref": "#/components/parameters/OrderDirection"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Tags: Create",
+        "operationId": "post-api-v2-tags",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tag"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagRequest"
+              },
+              "examples": {
+                "Simple Tag Request": {
+                  "$ref": "#/components/examples/TagRequest"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new tag.",
+        "tags": [
+          "Tags"
+        ]
+      }
+    },
+    "/api/v2/tags/{tag_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        },
+        {
+          "schema": {
+            "type": "integer"
+          },
+          "name": "tag_id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Tags: Tag Details",
+        "tags": [
+          "Tags"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tag"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "operationId": "get-api-v2-tags-tag_id",
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "description": "Get one specific tag."
+      },
+      "patch": {
+        "summary": "Tags: Update",
+        "operationId": "patch-api-v2-tags-tag_id",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tag"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagRequest"
+              },
+              "examples": {
+                "Simple Tag Request": {
+                  "$ref": "#/components/examples/TagRequest"
+                }
+              }
+            }
+          }
+        },
+        "description": "Update one specific Tag.",
+        "tags": [
+          "Tags"
+        ]
+      },
+      "delete": {
+        "summary": "Tag: Delete",
+        "operationId": "delete-api-v2-tags-tag_id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "description": "Delete one specific tag.",
+        "tags": [
+          "Tags"
+        ]
+      }
+    },
+    "/api/v2/tags/{tag_id}/links": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        },
+        {
+          "schema": {
+            "type": "integer"
+          },
+          "name": "tag_id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Tags: Links for a Tag",
+        "tags": [
+          "Tags"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkPaginator"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "operationId": "get-api-v2-tags-tag_id-links",
+        "description": "Get all links of one specific tag.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaginatorAmount"
+          }
+        ]
+      }
+    },
+    "/api/v2/bulk/links": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "post": {
+        "summary": "Bulk Store: Links",
+        "description": "Bulk store links",
+        "tags": [
+          "Bulk"
+        ],
+        "operationId": "post-api-v2-bulk-links",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Link"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "models": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/LinkRequest"
+                    }
+                  }
+                }
+              },
+              "examples": {
+                "Simple Bulk Store Request": {
+                  "$ref": "#/components/examples/LinkArrayRequest"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Bulk Edit: Links",
+        "description": "Bulk editing links",
+        "tags": [
+          "Bulk"
+        ],
+        "operationId": "patch-api-v2-bulk-links",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "models": {
+                    "type": "array"
+                  },
+                  "tags": {
+                    "type": "array"
+                  },
+                  "tags_mode": {
+                    "type": "string",
+                    "enum": [
+                      "append",
+                      "replace"
+                    ]
+                  },
+                  "lists": {
+                    "type": "array",
+                    "required": [
+                      "lists_mode"
+                    ]
+                  },
+                  "lists_mode": {
+                    "type": "string",
+                    "description": "'append' adds the provided Lists to existing ones, while 'replace' replaces all existing ones",
+                    "enum": [
+                      "append",
+                      "replace"
+                    ]
+                  },
+                  "visibility": {
+                    "$ref": "#/components/schemas/Visibility"
+                  }
+                },
+                "required": [
+                  "models",
+                  "tags",
+                  "tags_mode",
+                  "lists",
+                  "lists_mode"
+                ]
+              },
+              "examples": {
+                "Simple Bulk Edit Request": {
+                  "$ref": "#/components/examples/LinkBulkEditRequest"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/bulk/lists": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "post": {
+        "summary": "Bulk Store: Lists",
+        "description": "Bulk store lists",
+        "tags": [
+          "Bulk"
+        ],
+        "operationId": "post-api-v2-bulk-lists",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/List"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "models": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ListRequest"
+                    }
+                  }
+                }
+              },
+              "examples": {
+                "Simple Bulk Store Request": {
+                  "$ref": "#/components/examples/ListArrayRequest"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Bulk Edit: Lists",
+        "description": "Bulk editing lists",
+        "tags": [
+          "Bulk"
+        ],
+        "operationId": "patch-api-v2-bulk-lists",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "models": {
+                    "type": "array"
+                  },
+                  "visibility": {
+                    "$ref": "#/components/schemas/Visibility"
+                  }
+                },
+                "required": [
+                  "models"
+                ]
+              },
+              "examples": {
+                "Simple Bulk Edit Request": {
+                  "$ref": "#/components/examples/TaxonomyBulkEditRequest"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/bulk/tags": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "post": {
+        "summary": "Bulk Store: Tags",
+        "description": "Bulk store tags",
+        "tags": [
+          "Bulk"
+        ],
+        "operationId": "post-api-v2-bulk-tags",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tag"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "models": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TagRequest"
+                    }
+                  }
+                }
+              },
+              "examples": {
+                "Simple Bulk Store Request": {
+                  "$ref": "#/components/examples/TagArrayRequest"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Bulk Edit: Tags",
+        "description": "Bulk editing tags",
+        "tags": [
+          "Bulk"
+        ],
+        "operationId": "post-api-v2-bulk-tags",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "models": {
+                    "type": "array"
+                  },
+                  "visibility": {
+                    "$ref": "#/components/schemas/Visibility"
+                  }
+                },
+                "required": [
+                  "models"
+                ]
+              },
+              "examples": {
+                "Simple Bulk Edit Request": {
+                  "$ref": "#/components/examples/TaxonomyBulkEditRequest"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/bulk/delete": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "delete": {
+        "summary": "Bulk Deletion",
+        "operationId": "post-api-v2-bulk-deletion",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "Holds the models and the actual result of the deletion, where `true` indicates a successful deletion",
+                  "example": {
+                    "3": true,
+                    "75": true,
+                    "257": false
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "links",
+                      "lists",
+                      "tags"
+                    ]
+                  },
+                  "models": {
+                    "type": "array",
+                    "description": "IDs of the links, lists or tags to be deleted"
+                  }
+                },
+                "required": [
+                  "type",
+                  "models"
+                ]
+              },
+              "examples": {
+                "Simple Bulk Deletion Request": {
+                  "value": {
+                    "models": [
+                      3,
+                      75,
+                      257
+                    ],
+                    "type": "links"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Bulk deletion of links, lists or tags",
+        "tags": [
+          "Bulk"
+        ]
+      }
+    },
+    "/api/v2/search/tags": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "get": {
+        "summary": "Search Tags for Link Editing",
+        "tags": [
+          "Search",
+          "Tags"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TagPaginator"
+                },
+                "examples": {
+                  "Example for Query \"programming\"": {
+                    "value": {
+                      "83": "programming",
+                      "138": "programming-books"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-api-v2-search-tags",
+        "description": "Search tags to be used for Link editing.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaginatorAmount"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "query",
+            "description": "Query used to search for Tags",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/api/v2/notes": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "post": {
+        "summary": "Notes: Create",
+        "operationId": "post-api-v2-notes",
+        "description": "Create a new Note.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Note"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoteCreateRequest"
+              },
+              "examples": {
+                "Note Creation Request": {
+                  "$ref": "#/components/examples/NoteCreateRequest"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Notes"
+        ]
+      }
+    },
+    "/api/v2/notes/{note_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        },
+        {
+          "schema": {
+            "type": "integer"
+          },
+          "name": "note_id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "patch": {
+        "summary": "Notes: Update",
+        "operationId": "patch-api-v2-notes-note_id",
+        "description": "Update one specific Note.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Note"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoteUpdateRequest"
+              },
+              "examples": {
+                "Note Update Request": {
+                  "$ref": "#/components/examples/NoteUpdateRequest"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Notes"
+        ]
+      },
+      "delete": {
+        "summary": "Note: Delete",
+        "operationId": "delete-api-v2-notes-note_id",
+        "description": "Delete one specific note.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "tags": [
+          "Notes"
+        ]
+      }
+    },
+    "/api/v2/trash/links": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "get": {
+        "summary": "Trash: Get Links",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Link"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-api-v2-trash-links",
+        "tags": [
+          "Trash"
+        ],
+        "description": "Get all trashed links.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v2/trash/lists": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "get": {
+        "summary": "Trash: Get Lists",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/List"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-api-v2-trash-lists",
+        "tags": [
+          "Trash"
+        ],
+        "description": "Get all trashed lists.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v2/trash/tags": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "get": {
+        "summary": "Trash: Get Tags",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tag"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-api-v2-trash-tags",
+        "tags": [
+          "Trash"
+        ],
+        "description": "Get all trashed tags.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v2/trash/notes": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "get": {
+        "summary": "Trash: Get Notes",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Note"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-api-v2-trash-notes",
+        "tags": [
+          "Trash"
+        ],
+        "description": "Get all trashed notes.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ]
+      }
+    },
+    "/api/v2/trash/clear": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "delete": {
+        "summary": "Trash: Clear for Model",
+        "operationId": "delete-api-v2-trash-clear",
+        "responses": {
+          "200": {
+            "description": "OK, all entries deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "Delete all trashed entries for a given model.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "",
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "Model type",
+                    "enum": [
+                      "links",
+                      "lists",
+                      "tags",
+                      "notes"
+                    ]
+                  }
+                },
+                "required": [
+                  "model"
+                ]
+              }
+            }
+          }
+        },
+        "tags": [
+          "Trash"
+        ]
+      }
+    },
+    "/api/v2/trash/restore": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/DefaultAccept"
+        }
+      ],
+      "patch": {
+        "summary": "Trash: Restore entry",
+        "operationId": "patch-api-v2-trash-restore",
+        "responses": {
+          "200": {
+            "description": "OK, entry restored successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "Restore one specific entry from the trash.",
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "Entry type",
+                    "enum": [
+                      "link",
+                      "list",
+                      "tag",
+                      "note"
+                    ]
+                  },
+                  "id": {
+                    "type": "integer",
+                    "description": "Entry ID"
+                  }
+                },
+                "required": [
+                  "model",
+                  "id"
+                ]
+              }
+            }
+          },
+          "description": ""
+        },
+        "tags": [
+          "Trash"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Link": {
+        "title": "Model: Link",
+        "type": "object",
+        "x-examples": {
+          "Example Response for DuckDuckGo.com": {
+            "id": 85,
+            "user_id": 1,
+            "url": "https://duckduckgo.com",
+            "title": "DuckDuckGo — Privacy, simplified.",
+            "description": "The Internet privacy company that empowers you to seamlessly take control of your personal information online, without any tradeoffs.",
+            "icon": "fa fa-link",
+            "visibility": 1,
+            "status": 1,
+            "check_disabled": false,
+            "lists": [],
+            "tags": [],
+            "created_at": "2020-03-09T19:33:23.000000Z",
+            "updated_at": "2020-03-09T19:33:23.000000Z",
+            "deleted_at": null
+          }
+        },
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 84
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 1,
+            "minimum": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://duckduckgo.com"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "icon": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "fa fa-link"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "check_disabled": {
+            "type": "boolean"
+          },
+          "lists": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/List"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          },
+          "deleted_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          }
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "LinkWithoutRelations": {
+        "title": "Model: Link",
+        "type": "object",
+        "x-examples": {
+          "Example Response for DuckDuckGo.com": {
+            "id": 85,
+            "user_id": 1,
+            "url": "https://duckduckgo.com",
+            "title": "DuckDuckGo — Privacy, simplified.",
+            "description": "The Internet privacy company that empowers you to seamlessly take control of your personal information online, without any tradeoffs.",
+            "icon": "fa fa-link",
+            "visibility": 1,
+            "status": 1,
+            "check_disabled": false,
+            "lists": [],
+            "tags": [],
+            "created_at": "2020-03-09T19:33:23.000000Z",
+            "updated_at": "2020-03-09T19:33:23.000000Z",
+            "deleted_at": null
+          }
+        },
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 84
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 1,
+            "minimum": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://duckduckgo.com"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "icon": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "fa fa-link"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "check_disabled": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          },
+          "deleted_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          }
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "LinkPaginator": {
+        "title": "Paginator: Links",
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "to": {
+            "type": "integer"
+          },
+          "prev_page_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "per_page": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "next_page_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_page_url": {
+            "type": "string",
+            "example": "http://linkace.localhost/api/v2/links?page=7"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "from": {
+            "type": "integer"
+          },
+          "first_page_url": {
+            "type": "string",
+            "example": "http://linkace.localhost/api/v2/links?page=1"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LinkWithoutRelations"
+            }
+          },
+          "current_page": {
+            "type": "integer"
+          }
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "LinkCollection": {
+        "title": "Collection: Links",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/LinkWithoutRelations"
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "LinkRequest": {
+        "title": "Model: Link Request",
+        "type": "object",
+        "description": "#### Tag and list referencing\n\nAttention! Tags and lists might be passed in three different ways:\n- comma-separated strings (`'List 1,List 2'`),\n- arrays containing strings (`['List 1', 'List 2']`) or\n- arrays containing Tag / List IDs (`[1,2]`).\n\nIn the first two cases tags / lists are created if they don't exist.",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://duckduckgo.com"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "lists": {
+            "description": "Must be either an array of List IDs or List names, or a string with comma-separated List names",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array"
+              }
+            ],
+            "items": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          "tags": {
+            "description": "Must be either an array of List IDs or List names, or a string with comma-separated List names",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array"
+              }
+            ],
+            "items": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
+          },
+          "check_disabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "x-tags": [
+          "model"
+        ]
+      },
+      "List": {
+        "title": "Model: List",
+        "type": "object",
+        "x-examples": {
+          "Example of a List": {
+            "id": 3,
+            "user_id": 1,
+            "name": "CSS Frameworks",
+            "description": null,
+            "visibility": 1,
+            "created_at": "2020-01-24T13:13:02.000000Z",
+            "updated_at": "2020-01-24T13:13:02.000000Z",
+            "deleted_at": null,
+            "links": "https://example.com/api/v2/list/3/links"
+          }
+        },
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          },
+          "deleted_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          },
+          "links": {
+            "type": "string",
+            "description": "Contains the API URL to get the actual links of a list."
+          }
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "ListPaginator": {
+        "title": "Paginator: Lists",
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "to": {
+            "type": "integer"
+          },
+          "prev_page_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "per_page": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "next_page_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_page_url": {
+            "type": "string",
+            "example": "http://linkace.localhost/api/v2/lists?page=7"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "from": {
+            "type": "integer"
+          },
+          "first_page_url": {
+            "type": "string",
+            "example": "http://linkace.localhost/api/v2/lists?page=1"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/List"
+            }
+          },
+          "current_page": {
+            "type": "integer"
+          }
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "ListCollection": {
+        "title": "Collection: Lists",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/List"
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "ListRequest": {
+        "title": "Model: List Request",
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
+          },
+          "name": {
+            "type": "string",
+            "example": "Web Development Tools"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "x-tags": [
+          "model"
+        ]
+      },
+      "Note": {
+        "title": "Model: Note",
+        "type": "object",
+        "x-examples": {
+          "Example Response for a Note": {
+            "id": 85,
+            "user_id": 1,
+            "link_id": 23,
+            "note": "Interesting article, may be useful for later research about state machines in Go.",
+            "visibility": 1,
+            "created_at": "2020-03-09T19:33:23.000000Z",
+            "updated_at": "2020-03-09T19:33:23.000000Z",
+            "deleted_at": null
+          }
+        },
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 84
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 1,
+            "minimum": 1
+          },
+          "link_id": {
+            "type": "integer",
+            "example": 1,
+            "minimum": 1
+          },
+          "note": {
+            "type": "string"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          },
+          "deleted_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          }
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "NotePaginator": {
+        "title": "Paginator: Notes",
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "to": {
+            "type": "integer"
+          },
+          "prev_page_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "per_page": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "next_page_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_page_url": {
+            "type": "string",
+            "example": "http://linkace.localhost/api/v2/notes?page=7"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "from": {
+            "type": "integer"
+          },
+          "first_page_url": {
+            "type": "string",
+            "example": "http://linkace.localhost/api/v2/notes?page=1"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Note"
+            }
+          },
+          "current_page": {
+            "type": "integer"
+          }
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "NoteCreateRequest": {
+        "title": "Model: Note Create Request",
+        "type": "object",
+        "properties": {
+          "link_id": {
+            "type": "integer"
+          },
+          "note": {
+            "type": "string",
+            "example": "Interesting article, may be useful for later research about state machines in Go."
+          },
+          "is_private": {
+            "$ref": "#/components/schemas/Visibility"
+          }
+        },
+        "required": [
+          "link_id",
+          "note"
+        ],
+        "x-tags": [
+          "model"
+        ]
+      },
+      "NoteUpdateRequest": {
+        "title": "Model: Note Update Request",
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "example": "Interesting article, may be useful for later research about state machines in Go."
+          },
+          "is_private": {
+            "$ref": "#/components/schemas/Visibility"
+          }
+        },
+        "required": [
+          "note"
+        ],
+        "x-tags": [
+          "model"
+        ]
+      },
+      "Tag": {
+        "title": "Model: Tag",
+        "type": "object",
+        "x-examples": {
+          "Example of a Tag": {
+            "id": 118,
+            "user_id": 1,
+            "name": "alternative",
+            "visibility": 1,
+            "created_at": "2019-02-24T20:39:25.000000Z",
+            "updated_at": "2019-02-24T20:39:25.000000Z",
+            "deleted_at": null
+          }
+        },
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "visibility": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          },
+          "deleted_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "example": "2020-03-09T19:33:23.000000Z"
+          }
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "TagPaginator": {
+        "title": "Paginator: Tags",
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "to": {
+            "type": "integer"
+          },
+          "prev_page_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "per_page": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "next_page_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_page_url": {
+            "type": "string",
+            "example": "http://linkace.localhost/api/v2/tags?page=7"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "from": {
+            "type": "integer"
+          },
+          "first_page_url": {
+            "type": "string",
+            "example": "http://linkace.localhost/api/v2/tags?page=1"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            }
+          },
+          "current_page": {
+            "type": "integer"
+          }
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "TagCollection": {
+        "title": "Collection: Tags",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Tag"
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "TagRequest": {
+        "title": "Model: Tag Request",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "artificial-intelligence"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "x-tags": [
+          "model"
+        ]
+      },
+      "ValidationError": {
+        "title": "Model: ValidationError",
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "The given data was invalid."
+          },
+          "errors": {
+            "type": "object",
+            "properties": {
+              "form_key": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": false
+              }
+            }
+          }
+        },
+        "x-tags": [
+          "model"
+        ]
+      },
+      "Visibility": {
+        "type": "integer",
+        "enum": [
+          1,
+          2,
+          3
+        ],
+        "description": "Defines the visibility: 1 - public, 2 - internal, 3 - private",
+        "x-tags": [
+          "model"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "api_token": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "API token received from the user settings"
+      }
+    },
+    "parameters": {
+      "DefaultAccept": {
+        "name": "accept",
+        "description": "Default header needed for every request",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "default": "application/json"
+        }
+      },
+      "OrderDirection": {
+        "name": "order_dir",
+        "description": "Order elements in ascending or descending order",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      "PaginatorAmount": {
+        "name": "per_page",
+        "description": "Amount of entries to return per page. Use -1 to return all items.",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": -1
+        },
+        "x-examples": {
+          "100 entries per page": {
+            "per_page": 100
+          },
+          "all entries on first page": {
+            "per_page": -1
+          }
+        }
+      }
+    },
+    "requestBodies": {},
+    "examples": {
+      "LinkRequest": {
+        "value": {
+          "url": "https://duckduckgo.com",
+          "title": "DuckDuckGo — Privacy, simplified.",
+          "description": "The Internet privacy company that empowers you to seamlessly take control of your personal information online, without any tradeoffs.",
+          "lists": [
+            5
+          ],
+          "tags": [
+            9,
+            13,
+            "Search Engines"
+          ],
+          "visibility": 1,
+          "check_disabled": false
+        }
+      },
+      "LinkArrayRequest": {
+        "value": {
+          "models": [
+            {
+              "url": "https://laravel.com",
+              "title": "The PHP Framework for Web Artisans",
+              "description": "Laravel is a web application framework with expressive, elegant syntax. We’ve already laid the foundation — freeing you to create without sweating the small things.",
+              "lists": [
+                5
+              ],
+              "tags": [
+                9,
+                13,
+                "Search Engines"
+              ],
+              "visibility": 2,
+              "check_disabled": false
+            },
+            {
+              "url": "https://duckduckgo.com",
+              "title": "DuckDuckGo — Privacy, simplified.",
+              "description": "The Internet privacy company that empowers you to seamlessly take control of your personal information online, without any tradeoffs.",
+              "lists": [
+                5
+              ],
+              "tags": [
+                9,
+                13,
+                "Search Engines"
+              ],
+              "visibility": 1,
+              "check_disabled": false
+            }
+          ]
+        }
+      },
+      "LinkRequestWithStringTags": {
+        "value": {
+          "url": "https://duckduckgo.com",
+          "title": "DuckDuckGo — Privacy, simplified.",
+          "description": "The Internet privacy company that empowers you to seamlessly take control of your personal information online, without any tradeoffs.",
+          "lists": "List 1,List 2",
+          "tags": "tag1,tag2,tag3",
+          "visibility": 1,
+          "check_disabled": false
+        }
+      },
+      "LinkRequestWithArrayTags": {
+        "value": {
+          "url": "https://duckduckgo.com",
+          "title": "DuckDuckGo — Privacy, simplified.",
+          "description": "The Internet privacy company that empowers you to seamlessly take control of your personal information online, without any tradeoffs.",
+          "lists": [
+            "List 1",
+            "List 2"
+          ],
+          "tags": [
+            "tag1",
+            "tag2"
+          ],
+          "visibility": 1,
+          "check_disabled": false
+        }
+      },
+      "ListRequest": {
+        "value": {
+          "name": "Web Development Tools",
+          "description": "Various tools and applications for a more productiove web development.",
+          "visibility": 1
+        }
+      },
+      "ListArrayRequest": {
+        "value": {
+          "models": [
+            {
+              "name": "Web Development Tools",
+              "description": "Various tools and applications for a more productiove web development.",
+              "visibility": 1
+            },
+            {
+              "name": "All about Laravel",
+              "description": "Various tools, packages and tutorials around the Laravel ecosystem.",
+              "visibility": 2
+            }
+          ]
+        }
+      },
+      "TagRequest": {
+        "value": {
+          "name": "programming",
+          "visibility": 1
+        }
+      },
+      "TagArrayRequest": {
+        "value": {
+          "models": [
+            {
+              "name": "programming",
+              "visibility": 1
+            },
+            {
+              "name": "laravel",
+              "visibility": 1
+            }
+          ]
+        }
+      },
+      "LinkBulkEditRequest": {
+        "value": {
+          "models": [
+            3,
+            75,
+            257
+          ],
+          "tags": [
+            4,
+            7
+          ],
+          "tags_mode": "append",
+          "lists": [
+            9
+          ],
+          "lists_mode": "replace",
+          "visibility": 2
+        }
+      },
+      "TaxonomyBulkEditRequest": {
+        "value": {
+          "models": [
+            3,
+            75,
+            257
+          ],
+          "visibility": 2
+        }
+      },
+      "NoteCreateRequest": {
+        "value": {
+          "link_id": 23,
+          "note": "Interesting article, may be useful for later research about state machines in Go.",
+          "visibility": 1
+        }
+      },
+      "NoteUpdateRequest": {
+        "value": {
+          "note": "Interesting article, may be useful for later research about state machines in Go.",
+          "visibility": 1
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "General"
+    },
+    {
+      "name": "Links"
+    },
+    {
+      "name": "Lists"
+    },
+    {
+      "name": "Tags"
+    },
+    {
+      "name": "Notes"
+    },
+    {
+      "name": "Trash"
+    },
+    {
+      "name": "Search"
+    }
+  ]
+}

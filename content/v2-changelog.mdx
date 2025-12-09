@@ -1,0 +1,275 @@
+---
+title: v2 Changelog
+---
+
+{/* Build timestamp: 1765240518417 - Forces cache invalidation */}
+
+**Last Updated:** 12/6/2025
+
+---
+
+
+
+# v2 Changelog
+
+This changelog documents all releases and updates for LinkAce version 2.x, starting from version 2.0.0.
+
+---
+
+## Version 2.4.1
+
+Released: November 21, 2025
+
+### Changes
+
+Updated dependenciesAdded PHP 8.5 support to build and test scripts
+
+---
+
+## Version 2.4.0
+
+Released: October 19, 2025
+
+### Security Fixes
+
+Fixed ability to use the api_token query parameter for authenticated API requests (#1034)Discard fetching keywords from private IP addressesOnly export links, lists and tags visible for the user during HTML/CSV exportDo not include private links, lists and tags of other users in RSS feedsProperly escape share links to prevent XSS vulnerabilities
+
+### Improvements
+
+Correct encoding of HTML in share linksAdded missing NoPrivateIpRule validation rule
+
+---
+
+## Version 2.3.1
+
+Released: September 16, 2025
+
+### Bug Fixes
+
+Add missing user name validation when updating the user nameCorrect configuration for disabling TLS verification for SMTP (#1012)
+
+### Changes
+
+Updated dependencies
+
+---
+
+## Version 2.3.0
+
+Released: September 7, 2025
+
+### New Features
+
+Update OIDC login package, add SSO_OIDC_VERIFY_JWT optionAdd advanced configurations for database connections via SSL (related #949)
+
+### Bug Fixes
+
+Improve handling of urls for models with wrong referencing to prevent database errors (#1005)Hide share button for links if no share services are selected (#991)Improve pre-save check for link urls to properly check for trashed links (#1004)Correctly set the visibility of newly created tags and lists during link processing (#1001)
+
+### Changes
+
+Updated dependenciesFixed release docker image configuration
+
+---
+
+## Version 2.2.1
+
+Released: September 7, 2025
+
+### Bug Fixes
+
+Hide share button for links if no share services are selected (#991)Improve pre-save check for link urls to properly check for trashed links (#1004)
+
+### Changes
+
+Updated dependencies
+
+---
+
+## Version 2.2.0
+
+Released: August 31, 2025
+
+### New Features
+
+Add comprehensive GitHub Copilot instructions for LinkAce developmentAllow users to disable SSL verification for SMTP (#986)
+
+### Bug Fixes
+
+Correctly display a custom logo text for guests (#990)Do not create tags or lists by default in the select dropdown (#992)Fix markdown rendering in link lists by using formatted_description (#987)
+
+### Changes
+
+Remove Pocket as a sharing optionReplace Bitnami Redis with official image, update Postgres and MariaDB images to latest versionsAdjust reference to previous author domain with new domainUpdated dependencies
+
+---
+
+## Version 2.1.9
+
+Released: July 14, 2025
+
+### Bug Fixes
+
+Adjust handling of updating links with non-url values
+
+### Changes
+
+Updated dependencies
+
+---
+
+## Version 2.1.8
+
+Released: June 19, 2025
+
+### Bug Fixes
+
+Correctly remove taxonomy from a deleted link (#967)
+
+### Changes
+
+Updated dependencies
+
+---
+
+## Version 2.1.7
+
+Released: March 27, 2025
+
+### Bug Fixes
+
+Fix broken ordering of links on list view (#941)Minor fixes regarding SQLite web setup
+
+### Changes
+
+Updated dependenciesAdjust production .env files
+
+---
+
+## Version 2.1.6
+
+Released: March 21, 2025
+
+### Bug Fixes
+
+Fix handling of search queries for the new tag and list selects
+
+---
+
+## Version 2.1.5
+
+Released: March 17, 2025
+
+### New Features
+
+Optimize the setup:complete and registeruser commandsEnable SSO logins through the bookmarklet (#932)
+
+### Bug Fixes
+
+Fixes for tag and list handling (#936)Refactor tag and list selection to correctly handle ids and names during bulk editing (#936)
+
+### Changes
+
+Updated dependenciesMigrate Postgres db dump to sql for easier setupCorrect styling of rss button and active tag select items
+
+---
+
+## Version 2.1.4
+
+Released: February 26, 2025
+
+### Bug Fixes
+
+Always surround db password with quotes during setup (#927)Adjust handling of invalid API requests (#885)
+
+### Changes
+
+Updated dependenciesOptimize storage permissions for release packagesAdjust tests
+
+---
+
+## Version 2.1.3
+
+Released: February 16, 2025
+
+### Bug Fixes
+
+Fix link display for tags and lists (#912 #914)Add new migration for fixing user settings after v2.1.2Fix Bluesky share method migration
+
+---
+
+## Version 2.1.2
+
+Released: February 15, 2025
+
+### New Features
+
+Add Bluesky to sharing options (#909)
+
+### Bug Fixes
+
+Correct random ordering for tags and listsAdd missing default for meta generation timeoutAdd missing default setting for user creation script
+
+### Changes
+
+Make more config variables editable via env
+
+---
+
+## Version 2.1.1
+
+Released: February 11, 2025
+
+### Bug Fixes
+
+Output all links visible for a user when browsing lists (#902)Correctly handle empty tags/lists when bulk-editing links (#905)Add missing SSO_KEYCLOAK_BASE_URL to config (#904)Fix bulk deletion of tags and lists (#897)
+
+### Changes
+
+Updated dependencies
+
+---
+
+## Version 2.1.0
+
+Released: February 6, 2025
+
+### New Features
+
+Add /api/version endpointMake MAIL_DRIVER and MAIL_MAILER possible for mail configuration
+
+### Bug Fixes
+
+Optimize handling of lists and tags in guest modeCorrect handling of disabled backup notifications
+
+### Improvements
+
+Level up debugging and dev with BuggregatorAdd Content-Type header validation middleware for API requests
+
+### Changes
+
+Update translations, add Portuguese (pt_PT) and Swedish (sv_SE)Adjust readme with new setup methods, add deploystack configAdjust base docker image nameUpdated dependencies
+
+---
+
+## Version 2.0.0
+
+Released: January 31, 2025
+
+### New Features
+
+Provide a Helm chart for Kubernetes deployments (#870)Upgrade release docker images to PHP 8.4
+
+### Security Fixes
+
+Pull in security-related patches from LinkAce v1Improved HTML bookmark import sanitizationEnhanced link URL validation for store and update requests
+
+### Bug Fixes
+
+Stop queue runner if there are no jobsCap number of jobs ran via the schedule at one runProperly list jobs of the import queue
+
+### Changes
+
+Updated dependenciesRemove broken update scriptMute PHP deprecations in production image due to outdated dependencies
+
+---

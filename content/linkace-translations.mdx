@@ -1,0 +1,152 @@
+---
+title: LinkAce Translations
+---
+
+{/* Build timestamp: 1765240518417 - Forces cache invalidation */}
+
+**Last Updated:** 12/6/2025
+
+---
+
+# LinkAce Translations
+
+LinkAce is available in multiple languages, making it accessible to users around the world. The application supports 17 different language translations, all managed through a community-driven translation platform.
+
+## Available Languages
+
+LinkAce currently supports the following languages:
+
+| Language | Locale Code |
+|----------|-------------|
+| Catalan | ca_ES |
+| German | de_DE |
+| English (US) | en_US |
+| Spanish | es_ES |
+| French | fr_FR |
+| Hungarian | hu_HU |
+| Italian | it_IT |
+| Japanese | ja_JP |
+| Dutch | nl_NL |
+| Norwegian | no_NO |
+| Polish | pl_PL |
+| Portuguese | pt_PT |
+| Romanian | ro_RO |
+| Russian | ru_RU |
+| Swedish | sv_SE |
+| Vietnamese | vi_VN |
+| Chinese (Simplified) | zh_CN |
+
+## Translation Coverage
+
+English (US) serves as the base language for LinkAce, with all other translations derived from it. Each language translation covers all aspects of the application, including:
+
+- **User Interface Elements**: Navigation menus, buttons, form labels, and general UI text
+- **Authentication**: Login, registration, and password reset screens
+- **Link Management**: All features related to adding, editing, and organizing links
+- **Lists and Tags**: Interface elements for organizing bookmarks with lists and tags
+- **Search Functionality**: Search filters, options, and result displays
+- **Settings**: User preferences, system settings, and configuration options
+- **Admin Panel**: Administrative features and system management
+- **Import/Export**: Bookmark import and export functionality
+- **Sharing Features**: Multi-user collaboration and sharing options
+- **Validation Messages**: Form validation and error messages
+- **Audit Logs**: System activity tracking and history
+
+## Contributing to Translations
+
+LinkAce uses [Crowdin](https://crowdin.com/project/linkace) as its translation management platform. Crowdin is a collaborative translation tool that allows community members to contribute translations, suggest improvements, and help maintain language accuracy.
+
+### How to Contribute
+
+If you'd like to help translate LinkAce or improve existing translations:
+
+1. **Visit the Crowdin Project**: Go to [https://crowdin.com/project/linkace](https://crowdin.com/project/linkace)
+2. **Create a Crowdin Account**: Sign up for free if you don't already have an account
+3. **Select Your Language**: Choose the language you want to contribute to
+4. **Start Translating**: Browse through untranslated or unverified strings and submit your translations
+5. **Review and Vote**: Review translations submitted by others and vote for the best options
+
+### Translation Guidelines
+
+When contributing translations to LinkAce, please keep these guidelines in mind:
+
+- **Maintain Consistency**: Use consistent terminology throughout the application
+- **Preserve Placeholders**: Keep technical placeholders (like `:fieldname`, `:model`) intact
+- **Context Matters**: Consider where the text will appear in the interface
+- **HTML Tags**: Preserve any HTML tags or formatting codes (like `<code>`, `<span>`)
+- **Cultural Appropriateness**: Adapt translations to be culturally appropriate for your target audience
+- **Test When Possible**: If you can run LinkAce locally, test your translations in context
+
+### Important Note About Pull Requests
+
+**Do not submit translation changes via GitHub pull requests.** All translations must be submitted through Crowdin to maintain consistency and proper version control. Pull requests containing language file changes will not be accepted.
+
+## Technical Implementation
+
+LinkAce's translation system is built on Laravel's localization features. The translation files are stored in the `/lang` directory, with each language having its own subdirectory named after its locale code.
+
+### Translation File Structure
+
+Each language directory contains the following translation files:
+
+- `admin.php` - Administrative interface translations
+- `attributes.php` - Form field attribute names
+- `audit.php` - Audit log and history translations
+- `auth.php` - Authentication and authorization messages
+- `export.php` - Export functionality translations
+- `import.php` - Import functionality translations
+- `link.php` - Link management translations
+- `linkace.php` - Core application translations
+- `list.php` - List management translations
+- `note.php` - Note-related translations
+- `pagination.php` - Pagination controls
+- `passwords.php` - Password reset and management
+- `placeholder.php` - Placeholder text for forms
+- `search.php` - Search functionality translations
+- `settings.php` - Settings and preferences
+- `setup.php` - Installation and setup process
+- `sharing.php` - Sharing and collaboration features
+- `stats.php` - Statistics and analytics
+- `tag.php` - Tag management translations
+- `trash.php` - Trash and deletion features
+- `user.php` - User management translations
+- `validation.php` - Form validation messages
+
+### Crowdin Integration
+
+LinkAce uses a `crowdin.yml` configuration file to manage the synchronization between the GitHub repository and Crowdin:
+
+```yaml
+files:
+  - source: /resources/lang/en_US/*.php
+    translation: /resources/lang/%locale_with_underscore%/%original_file_name%
+```
+
+This configuration ensures that:
+- English (US) serves as the source language
+- Translations are automatically organized by locale code
+- File structure remains consistent across all languages
+- Updates to the English source files are automatically detected by Crowdin
+
+## Selecting Your Language
+
+When you first set up LinkAce, the application will attempt to detect your browser's language preference and automatically display the interface in that language if a translation is available. You can also manually change the language in your user settings at any time.
+
+If your preferred language is not yet available or needs improvement, consider contributing to the translation effort on Crowdin!
+
+## Translation Maintenance
+
+The LinkAce development team regularly syncs translations from Crowdin to the main repository. This ensures that:
+
+- New translations are included in upcoming releases
+- Translation updates are deployed to all users
+- The translation quality is maintained through community review
+- New features are quickly translated to all supported languages
+
+## Future Language Support
+
+LinkAce welcomes translation contributions for additional languages not currently listed. If you'd like to start a translation for a new language, visit the Crowdin project page and request the addition of your language. The maintainers will review the request and can add new languages to the project.
+
+---
+
+**Note**: LinkAce is an open-source project maintained by volunteers. Translation quality and coverage may vary between languages. Community contributions are essential to maintaining and improving translation quality across all supported languages.
