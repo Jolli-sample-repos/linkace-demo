@@ -27,8 +27,7 @@ export default {
     title: 'API Documentation'
   },
   'api-linkace-openapi': {
-    title: 'Linkace Openapi',
-    type: 'page',
+    title: 'LinkAce API Reference',
     href: '/api-docs-linkace-openapi.html'
   }
 }
