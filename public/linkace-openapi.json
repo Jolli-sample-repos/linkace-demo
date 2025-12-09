@@ -26,7 +26,7 @@
         }
       ],
       "get": {
-        "summary": "API CURRENT Version",
+        "summary": "API Version",
         "operationId": "get-api-version",
         "description": "<div><span class=\"since\">Available since: v2.1.0</span></div>Get the current API version supported by LinkAce",
         "responses": {
