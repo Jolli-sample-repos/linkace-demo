@@ -2,19 +2,19 @@
 title: Setup with PHP
 ---
 
-{/* Build timestamp: 1765321022499 - Forces cache invalidation */}
+{/* Build timestamp: 1765407052932 - Forces cache invalidation */}
 
-**Last Updated:** 12/9/2025
+**Last Updated:** 12/10/2025
 
 ---
 
 Since this application was designed for Docker, consider the following steps as a workaround. These steps aren't guaranteed to work in every environment. You will need shell access to work with LinkAce.
 
-## Requirements
+## Requirements 
 
 * A Linux-based server with full command line access
 * The `storage` directory inside LinkAce must be writable by the web server
-* **PHP 8.1 to 8.3**, with the following extensions
+* **PHP 8.1 to 8.4**, with the following extensions
     * BCMath
     * Ctype
     * DOM
@@ -26,10 +26,9 @@ Since this application was designed for Docker, consider the following steps as 
     * Tokenizer
     * XML
 * A database server with one of the following databases running:
-    * MySQL 5.7+ or MySQL 8.0+ (recommended)
-    * MariaDB 10.3+
-    * PostgreSQL 10+
-    * SQLite 3.26.0+
+    * MySQL 5.6+ (recommended)
+    * PostgreSQL 9.4+
+    * SQLite 3.8.8+
     * SQL Server 2017+ (not tested, may work)
 * If your database is not running on the same server as LinkAce, you need to install the corresponding database clients:
   * MySQL: [mysql-client](https://dev.mysql.com/doc/refman/8.4/en/mysql.html) or [mariadb-client](https://mariadb.com/docs/server/connect/clients/mariadb-client/)
@@ -40,8 +39,6 @@ Since this application was designed for Docker, consider the following steps as 
 Older PHP versions will **not** be supported in any way. Please do yourself a favor and do not expose yourself or your users to any risks by using an outdated PHP version.
 
 ## Installation Process
-
-
 
 ### 1. Get the .zip file
 
