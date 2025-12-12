@@ -22,6 +22,11 @@ export default {
   'v2-changelog': 'v2 Changelog',
   'linkace-translations': 'LinkAce Translations',
   'likeace-overview': 'LinkAce Overview',
+  'linkace-docs': {
+    title: 'Docs',
+    type: 'page',
+    href: '/'
+  }
   'api-reference': {
     title: 'API Reference',
     type: 'page',
