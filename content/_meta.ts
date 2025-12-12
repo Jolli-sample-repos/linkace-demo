@@ -1,5 +1,5 @@
 export default {
-  'index': 'Home',
+  'index': { display: 'hidden' },
   'setup-with-php': 'Setup with PHP',
   'setup-with-docker': 'Setup with Docker',
   'using': {
