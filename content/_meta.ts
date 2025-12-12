@@ -1,5 +1,5 @@
 export default {
-  'index': 'Home',
+  'index': { display: 'hidden' },
   'setup-with-php': 'Setup with PHP',
   'setup-with-docker': 'Setup with Docker',
   'using': {
@@ -22,14 +22,9 @@ export default {
   'v2-changelog': 'v2 Changelog',
   'linkace-translations': 'LinkAce Translations',
   'likeace-overview': 'LinkAce Overview',
-  'docs-site': {
-    title: 'Docs',
+  'api-reference': {
+    title: 'API Reference',
     type: 'page',
-    href: '/'
-  },
-  'api-linkace-openapi': {
-    title: 'Linkace Openapi',
-    type: 'page',
-    href: '/api-docs-linkace-openapi.html'
+    href: '/api-docs/linkace-openapi'
   }
 }
